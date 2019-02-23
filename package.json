@@ -4,7 +4,14 @@
   "main": "app.js",
   "author": "komura <h.komura2@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "server": "nodemon app.js"
+  },
+  
   "dependencies": {
     "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
   }
 }
