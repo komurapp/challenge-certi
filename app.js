@@ -6,23 +6,35 @@ const dozens = orders.dozens;
 const hundreds = orders.hundreds;
 const app = express();
 const port = 3000;
+const message = `
+<p>Add a number to the URL between -99999 and 99999.</p>
+<p>e.g. localhost:3000/112 => {"id": "cento e doze"}</p>
+`
 
-/**
- * range: [ -99999, 99999 ]
- * six characters, including the signal
- * */
 app.get('/favicon.ico', (req, res) => res.status(204));
-app.get("/:id", (req, res) => {
+// displays a message for "/" or an empty path
+app.get(/^\/$/, (req, res) => {
+  res.send(message)
+})
+app.get("/:id([a-zA-Z]+)", (req, res) => {
+  res.send(message)
+})
+// only accepts numbers
+app.get("/:id([- 0-9]+)", (req, res) => {
   const value = parseInt(req.params.id);
   if (Math.abs(value) > 99999) {
-    return res.send("id must be at range of [-99999, 99999]");
+    return res.send(`
+    <p>id must be at range of [-99999, 99999]</p>
+    <p><p>e.g. localhost:3000/112 => {"id": "cento e doze"}</p></p>
+    `);
   }
 
   function toWords(number) {
+    // string of the result
     let words;
     let num = parseInt(number, 10);
     words = generateWords(num)
-    return res.send(`{"id": ${words}}`);
+    return res.send(`{"id": "${words}"}`);
   };
   
   function generateWords(number) {
@@ -44,7 +56,7 @@ app.get("/:id", (req, res) => {
       remainder = number % 10;
       word = dozens[Math.floor(number / 10)];
       if (remainder) {
-        word += " e " + fromZeroToTwenty[remainder]
+        word += ` e ${fromZeroToTwenty[remainder]}`
         remainder = 0;
       }
     } else if (number <= 1000) {
@@ -52,11 +64,8 @@ app.get("/:id", (req, res) => {
       word = hundreds[Math.floor(number / 100) - 1];
       if (remainder) {
         unit = remainder % 10;
-        word += " e " + dozens[Math.floor(remainder / 10)]
+        word += ` e ${generateWords(Math.floor(remainder))}`
         remainder = 0;
-        if (unit) {
-          word += " e " + fromZeroToTwenty[unit]
-        }
       }
     } else if (number < 100000) {
       remainder = number % 1000;
